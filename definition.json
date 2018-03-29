@@ -1,0 +1,56 @@
+// Tactical 
+
+{
+    id: xyz,
+    body: {
+    type: 'tactical',
+    subType: 'CRM / LOYALTY',
+    activityName : '',
+    channel: '',
+    audience: '',
+    volume: 1000,
+    offer: '',
+    jobId: '',
+    allDay: false , //
+    start: 'DATE',
+    end: 'DATE'
+    }
+}
+    
+// Owned Content 
+    
+{
+    id: xyz,
+    body: {
+    type: 'owned',
+    subType: 'SPORTS / RACING BLOG',
+    content: [],
+    start: 'DATE', 
+    end: 'DATE' // optional   
+    }
+}
+
+// Market 
+
+{   id: xyz,
+    body: {
+        type: 'market',
+        subType: 'SPORTS / RACING MARKET',
+        event: '',
+        week: 1,
+        startDate: {DATE} ,  
+        endDate: {DATE} 
+    }
+}
+
+// CRM Activity Lifecycle 
+
+{   id: xyz,
+    body: {   
+    type: 'lifecycle',
+    activityName: '',
+    alwaysOn: true, //true or false
+    daySlot: 0 // dow 
+    }
+}
+

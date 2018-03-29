@@ -1,2 +1,2 @@
 # promoCalendar
-Promotion Calendar - Built on top of React Big Calendar 
+Calendar for Marketing's Promotion 
