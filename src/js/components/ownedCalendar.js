@@ -21,7 +21,9 @@ export default class Owned extends React.Component {
                   currentTacticalView: 'week',
                   renderPicker: false,
                   setDateError: false,
-                  testProp: {}}
+                  testProp: {},
+                  onWeek: 1,
+                  }
     }
     
     componentWillMount(){
@@ -32,6 +34,7 @@ export default class Owned extends React.Component {
         this.handleDateChange = this.handleDateChange.bind(this)
         this.checkDateChange = this.checkDateChange.bind(this)
         this.submitEvent = this.submitEvent.bind(this)
+        
     }
     
     
@@ -118,14 +121,19 @@ export default class Owned extends React.Component {
     
     }
     
+    updateGoTo = (e) => {
+        let newWeek = e.target.value
+        this.setState({ownedToWeek: newWeek})
+    }
+    
     
     renderEvent = () => {
         
         let event = this.state.currentEvent
 //        let startDate = event.body.start.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
 //        let endDate = event.body.end.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
-        let startDate = moment().toDate().toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
-        let endDate = moment().toDate().toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
+        let startDate = moment().toDate().toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('()','')
+        let endDate = moment().toDate().toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('()','')
         let types = [{ key: 'SPORTS', value: 'SPORTS', text: 'SPORTS BLOG' },
                      { key: 'RACING', value: 'RACING', text: 'RACING BLOG' }]
         let { subType, content } = event.body
@@ -141,7 +149,7 @@ export default class Owned extends React.Component {
             </div>
         </Modal.Header>
         <Modal.Content>
-        <Segment style={{color: "#D82866", textAlign: 'center'}} onClick={() => this.setState({renderPicker: true})}> {startDate} - {endDate} </Segment>
+        <Segment style={{color: "#D82866", textAlign: 'center'}} onClick={() => this.setState({renderPicker: true})}> Week { this.state.onWeek } </Segment>
         <Segment stacked>
             <div class="ui form">
                <div class="field">
@@ -173,7 +181,6 @@ export default class Owned extends React.Component {
 //        let now = moment()
 //        let testProp = this.state.testProp
 //        testProp.eventsRendered = testProp.events.map((event) => { let body = event.body; body.id = event.id; return body } )
-         console.log(this.state.currentEvent)
        
         let eventDetail = ( this.state.currentEvent != null ) ? this.renderEvent(null) : ''
     
@@ -195,20 +202,32 @@ export default class Owned extends React.Component {
                                          {event}
                                      </li>
                                      ))
-                    
-        return (
-        
-            <div id='tacticalGrid'>
+                 
+        if (this.state.onWeek != 0) {
+            
+            let onWeek = this.state.onWeek
+            
+            return ( 
+                <div id='tacticalGrid'>
                     <br></br> 
                     {eventDetail}
                     <div style={{textAlign: 'center'}}>
                         <div id='tacticalCalendar'>   
+                           <h1 style={{textAlign: 'center', fontSize: '34px'}}>Owned Content</h1> 
+                           
+                           <h2 style={{textAlign: 'center', fontSize: '26px', fontFamily: 'Open Sans', color:'#EF2D70'}}>
+                           Week #{ onWeek }
+                           </h2>
+                            <div style={{textAlign: 'center'}}>
+                                <Button.Group size='large'>
+                                <Button>Current Week</Button>
+                                <Button.Or />
+                                <Button type='submit'>Go to week &nbsp; <input style={{textAlign: 'center', fontSize: '14px', maxWidth: '25px', fontWeight:'bold', color:'#E527A2'}} onChange={(e)=> this.updateGoTo(e) }/> </Button>
+                                </Button.Group>
+                            </div>
+                            <br></br>
                             <Table celled inverted selectable>
-                                <Table.Header style={{textAlign: 'center', fontSize: '32'}}>
-                                  <Table.Row>
-                                    <Table.HeaderCell colSpan='3'>Owned Content</Table.HeaderCell>
-                                  </Table.Row>
-                                </Table.Header>
+                                
 
                                 <Table.Body>
                                   <Table.Row>
@@ -225,7 +244,7 @@ export default class Owned extends React.Component {
                                     <Table.Cell collapsing style={{fontSize: '19px'}}>
                                       <Icon name='pencil alternate' /> RACING BLOG
                                     </Table.Cell>
-                                    <Table.Cell>
+                                    <Table.Cell onClick={() => this.setState({showModal: true, currentEvent: testProp})} >
                                         <ul>
                                             {sportBlogs}
                                         </ul>
@@ -235,8 +254,10 @@ export default class Owned extends React.Component {
                             </Table>
                         </div> 
                  </div>
-            </div>
-                
-            )
+            </div> )
+        } else { 
+                return ( <h2 style={{fontSize: 42, marginLeft: '25px', color: "#D82866"}}> Loading ...  </h2> )
+         }
+        
        }            
 }

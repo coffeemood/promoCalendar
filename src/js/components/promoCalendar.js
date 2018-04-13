@@ -53,9 +53,9 @@ export default class Layout extends React.Component {
     renderMenu = () => {
         let { onPage } = this.state 
         return (<Menu stackable size='massive' id="mainMenu">
-            <Menu.Item>
-              <img src='../../img/tab.png' />
-            </Menu.Item>
+        <Menu.Item>
+          <img src='../../img/tab.png' />
+        </Menu.Item>
         <div id='mainMenuOptionBar'>
             <Menu.Item
               name='Tactical'
@@ -88,6 +88,9 @@ export default class Layout extends React.Component {
               TBA
             </Menu.Item>
         </div>
+        <Menu.Item>
+          <img src='../../img/watchdog.png' />
+        </Menu.Item>
       </Menu>)
     }
         
@@ -110,7 +113,7 @@ export default class Layout extends React.Component {
 //                <div> {nextCalendar} </div><br></br> </div>
         
         return (
-        <div style={{overflow: "auto", height: "900px"}} > 
+        <div style={{overflow: "auto", height: "1900px"}} > 
                   <div>
                        {menu}
                        {calendar}

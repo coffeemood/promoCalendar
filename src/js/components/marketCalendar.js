@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import BigCalendar from 'react-big-calendar';
-//import DatePicker from 'react-datepicker';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Datetime from 'react-datetime';
 import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../actions/eventActions"
 import { Table, Button, Divider, Modal, Label, Input, Segment, Form, TextArea, Dropdown, Grid, Icon, Confirm, Checkbox, Message } from "semantic-ui-react"
@@ -16,6 +17,9 @@ BigCalendar.momentLocalizer(moment)
 @connect((store) => {
     return {
         events: store.event.events,
+        updated: store.event.updated,
+        created: store.event.created,
+        deleted: store.event.deleted
     };
 })
 
@@ -31,6 +35,7 @@ export default class Markets extends React.Component {
                   renderPicker: false,
                   setDateError: false,
                   testProp: {},
+                  onDate: moment(),
                   rendering: {
                       sports: 1,
                       racing: 1
@@ -51,9 +56,18 @@ export default class Markets extends React.Component {
         this.submitEvent = this.submitEvent.bind(this)
     }
     
+    componentDidUpdate(){
+        let cprops = this.props
+        if (cprops.deleted || cprops.updated || cprops.created){
+            console.log('hello')
+            this.props.dispatch(fetchEvents('marketing'))
+        }
+    }
     
     componentWillReceiveProps(newProps){
-        if (newProps.events){
+        
+        console.log(newProps)
+        if (newProps.events && newProps.events.message != "Deleted user"){
             let allEvents = newProps.events.data 
             let allEventsFmt = allEvents.map((event) => {
                 if (event.body.type && event.body.start && event.body.end) {
@@ -93,6 +107,7 @@ export default class Markets extends React.Component {
             <BigCalendar height="700px"
               events={props.actualRendered}
               defaultView={props.defaultView}
+              date={props.onDate}
               step={8}
               timeslots={15}
               drilldownView={null}
@@ -123,10 +138,9 @@ export default class Markets extends React.Component {
         } else {
             this.props.dispatch(updateEvent(currentEvent))
         }
-        this.props.dispatch(fetchEvents('marketing'))
     }
     
-    deleteEvent = () => { let { currentEvent } = this.state; this.props.dispatch(deleteEvent(currentEvent)) }
+    deleteEvent = () => { let { currentEvent } = this.state; this.props.dispatch(deleteEvent(currentEvent)); }
     
     checkDateChange = () => {
         let cevent = this.state.currentEvent
@@ -202,18 +216,23 @@ export default class Markets extends React.Component {
             subType: 'SPORTS',
             title: 'Event Title',
             week: 1,
-            start: moment().toDate(),  
-            end: moment().toDate()
+            start: moment().seconds(0).toDate(),  
+            end: moment().seconds(0).toDate()
         }
         this.setState({showModal:true, currentEvent: event, newEvent: true})
+    }
+    
+    handleViewChange = (date) => {
+        
+        this.setState({onDate: moment(date) })
     }
     
     renderEvent = () => {
         
         let newEvent = this.state.newEvent 
         let event = this.state.currentEvent
-        let startDate = event.start.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
-        let endDate = event.end.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
+        let startDate = event.start.toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('T+1100', '').replace('AEDT','').replace('()','')
+        let endDate = event.end.toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('T+1100', '').replace('AEDT','').replace('()','')
         let { subType, title, start, end, week } = event 
         let types = [{ key: 'SPORTS', value: 'SPORTS', text: 'SPORTS' },
                      { key: 'RACING', value: 'RACING', text: 'RACING' }]
@@ -271,10 +290,12 @@ export default class Markets extends React.Component {
         
        if (!_.isEmpty(this.state.testProp)){
         
-        console.log(this.state.rendering)
+       
         let { rendering } = this.state
         let now = moment()
         let testProp = this.state.testProp
+        let onDate = this.state.onDate 
+        testProp.onDate = moment(onDate, 'YYYY-MM-DD').format()
         
         testProp.eventsRendered = testProp.events.map((event) => { let body = event.body; body.id = event.id; return body } )
         testProp.actualRendered = (rendering.sports && rendering.racing) ? testProp.eventsRendered : rendering.sports ? testProp.eventsRendered.filter((event)=> event.subType.toLowerCase() == 'sports') : rendering.racing ? testProp.eventsRendered.filter((event)=> event.subType.toLowerCase() == 'racing') : [{ title: 'Event Title', start: moment("9999-12-25").toDate(), end: moment("9999-12-25").toDate() }]
@@ -291,7 +312,7 @@ export default class Markets extends React.Component {
             <div id='tacticalGrid'>
                     <div id="tacticalOptionBar">
                     <div>
-                         <h1>MARKET</h1> 
+                         <h1>MARKET</h1>
                          &nbsp; <Icon id="icon-outline-out" title="Add new event" className='circular red large add circle' onClick={()=> this.renderNewEvent()}/> 
                          <Icon id="icon-spin" title="Refresh data" className='circular red large refresh' onClick={() => this.props.dispatch(fetchEvents('marketing'))}/> 
                          <br></br>
@@ -301,6 +322,8 @@ export default class Markets extends React.Component {
                     
                     <div style={{textAlign: 'center'}}>
                         <div id='tacticalCalendar'>   
+                        <div id='datePicker'><DatePicker selected={this.state.onDate} onChange={(date) => this.handleViewChange(date)} /></div>
+                        <br></br>
                             {thisCalendar}
                         </div> 
                         <br></br>

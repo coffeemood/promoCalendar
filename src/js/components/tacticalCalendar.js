@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import BigCalendar from 'react-big-calendar';
 //import DatePicker from 'react-datepicker';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Datetime from 'react-datetime';
 import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../actions/eventActions"
 import { Table, Button, Divider, Modal, Label, Input, Segment, Form, TextArea, Dropdown, Grid, Icon, Confirm, Checkbox, Message } from "semantic-ui-react"
@@ -16,6 +18,9 @@ BigCalendar.momentLocalizer(moment)
 @connect((store) => {
     return {
         events: store.event.events,
+        updated: store.event.updated,
+        created: store.event.created,
+        deleted: store.event.deleted
     };
 })
 
@@ -31,6 +36,7 @@ export default class Tactical extends React.Component {
                   currentTacticalView: 'week',
                   renderPicker: false,
                   setDateError: false,
+                  onDate: moment(),
                   testProp: {}, 
                   rendering: {
                       loyalty: 1,
@@ -49,13 +55,22 @@ export default class Tactical extends React.Component {
         this.renderDatePicker = this.renderDatePicker.bind(this)
         this.handleDateChange = this.handleDateChange.bind(this)
         this.checkDateChange = this.checkDateChange.bind(this)
+        this.handleViewChange = this.handleViewChange.bind(this)
         this.submitEvent = this.submitEvent.bind(this)
         this.flipVisible = this.flipVisible.bind(this)
     }
     
+    componentDidUpdate(){
+        let cprops = this.props
+        if (cprops.deleted || cprops.updated || cprops.created){
+            console.log('hello')
+            this.props.dispatch(fetchEvents('tactical'))
+        }
+    }
     
     componentWillReceiveProps(newProps){
-        if (newProps.events){
+
+        if (newProps.events && newProps.events.message != "Deleted user"){
             let allEvents = newProps.events.data 
             let allEventsFmt = allEvents.map((event) => {
                 if (event.body.type && event.body.start && event.body.end) {
@@ -66,6 +81,7 @@ export default class Tactical extends React.Component {
             })
             
             allEventsFmt.forEach( (item, index, object) => { if ( !item.body.type || item.body.type.toLowerCase() != 'tactical' ) { object.splice(index, 1); }})
+            
             
             this.setState({testProp: { events: allEventsFmt, defaultView: 'week' }})
         }
@@ -92,8 +108,9 @@ export default class Tactical extends React.Component {
             <BigCalendar height="700px"
               events={props.actualRendered}
               defaultView={props.defaultView}
+              date={props.onDate}
               step={8}
-              timeslots={15}
+              timeslots={12}
               drilldownView={null}
               startAccessor='start'
               endAccessor='end'
@@ -124,10 +141,9 @@ export default class Tactical extends React.Component {
         } else {
             this.props.dispatch(updateEvent(currentEvent))
         }
-        this.props.dispatch(fetchEvents('tactical'))
     }
     
-    deleteEvent = () => { let { currentEvent } = this.state; this.props.dispatch(deleteEvent(currentEvent)) }
+    deleteEvent = () => { let { currentEvent } = this.state; this.props.dispatch(deleteEvent(currentEvent)); }
     
     checkDateChange = () => {
         let cevent = this.state.currentEvent
@@ -208,18 +224,22 @@ export default class Tactical extends React.Component {
             audience: '',
             offer: 'This is a sample promotion where customers are given $1,000,000 bonus bet',
             jobId: '',
-            start: moment().toDate(),
-            end: moment().toDate()
+            start: moment().seconds(0).toDate(),
+            end: moment().seconds(0).toDate()
         }
         this.setState({showModal:true, currentEvent: event, newEvent: true})
+    }
+    
+    handleViewChange = (date) => {   
+        this.setState({onDate: moment(date) })
     }
     
     renderEvent = () => {
         
         let newEvent = this.state.newEvent 
         let event = this.state.currentEvent
-        let startDate = event.start.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
-        let endDate = event.end.toString().replace('GM', ' ').replace('T+1100', '').replace('AEDT','').replace('()','')
+        let startDate = event.start.toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('T+1100', '').replace('AEDT','').replace('()','')
+        let endDate = event.end.toString().replace('GM', ' ').replace('T+1000', '').replace('AEST','').replace('T+1100', '').replace('AEDT','').replace('()','')
         let { subType, activityName, channel, volume, audience, offer, jobId, week } = event 
         let types = [{ key: 'CRM', value: 'CRM', text: 'CRM' },
                      { key: 'LOYALTY', value: 'LOYALTY', text: 'LOYALTY' }]
@@ -302,6 +322,9 @@ export default class Tactical extends React.Component {
         let { rendering } = this.state
         let now = moment()
         let testProp = this.state.testProp
+        let onDate = this.state.onDate 
+        testProp.onDate = moment(onDate, 'YYYY-MM-DD').format()
+        
         testProp.eventsRendered = testProp.events.map((event) => { let body = event.body; body.id = event.id; return body } )
         testProp.actualRendered = (rendering.loyalty && rendering.crm) ? testProp.eventsRendered : rendering.crm ? testProp.eventsRendered.filter((event)=> event.subType.toLowerCase() == 'crm') : rendering.loyalty ? testProp.eventsRendered.filter((event)=> event.subType.toLowerCase() == 'loyalty') : [{ title: 'Event Title', start: moment("9999-12-25").toDate(), end: moment("9999-12-25").toDate() }]
            
@@ -335,7 +358,9 @@ export default class Tactical extends React.Component {
                     </div>
                     
                     <div style={{textAlign: 'center'}}>
-                        <div id='tacticalCalendar'>   
+                        <div id='tacticalCalendar'>
+                        <div id='datePicker'><DatePicker selected={this.state.onDate} onChange={(date) => this.handleViewChange(date)} /></div>
+                        <br></br>   
                             {thisCalendar}
                         </div> 
                         <br></br>

@@ -7,11 +7,13 @@ var config = {
     }
 }
 
+var environment = 'dev'
+var host = environment == 'dev' ? 'http://localhost:6001/v1/promotions-calendar' : 'https://opsapi.tabdigital.com.au/v1/promotions-calendar'
+
 export function fetchEvents(type) {
   return function(dispatch) {
-    config.params.type = type
     dispatch({type: "FETCH_EVENT"});
-    axios.get("http://localhost:6001/v1/promotions-calendar/events", config)
+    axios.get(`${host}/events?type=${type}`, config)
       .then((response) => {
         dispatch({type: "FETCH_EVENTS_FULFILLED", payload: response.data})
       })
@@ -24,16 +26,9 @@ export function fetchEvents(type) {
 export function createEvent(body) {
   return function(dispatch) {
     dispatch({type: "CREATE_EVENT"});
-    axios.post("http://localhost:6001/v1/promotions-calendar/events", body, config)
+    axios.post(`${host}/events`, body, config)
       .then((response) => {
         dispatch({type: "CREATE_EVENTS_FULFILLED", payload: response.data})
-        axios.get("http://localhost:6001/v1/promotions-calendar/events", config)
-          .then((response) => {
-            dispatch({type: "FETCH_EVENTS_FULFILLED", payload: response.data})
-          })
-          .catch((err) => {
-            dispatch({type: "FETCH_EVENTS_REJECTED", payload: err})
-          })
       })
       .catch((err) => {
         dispatch({type: "CREATE_EVENTS_REJECTED", payload: err})
@@ -43,18 +38,10 @@ export function createEvent(body) {
 
 export function updateEvent(body) {
   return function(dispatch) {
-    console.log(body)
     dispatch({type: "UPDATE_EVENT"});
-    axios.put("http://localhost:6001/v1/promotions-calendar/events", body, config)
+    axios.put(`${host}/events`, body, config)
       .then((response) => {
         dispatch({type: "UPDATE_EVENTS_FULFILLED", payload: response.data})
-        axios.get("http://localhost:6001/v1/promotions-calendar/events", config)
-          .then((response) => {
-            dispatch({type: "FETCH_EVENTS_FULFILLED", payload: response.data})
-          })
-          .catch((err) => {
-            dispatch({type: "FETCH_EVENTS_REJECTED", payload: err})
-          })
       })
       .catch((err) => {
         dispatch({type: "UPDATE_EVENTS_REJECTED", payload: err})
@@ -64,29 +51,13 @@ export function updateEvent(body) {
 
 export function deleteEvent(body) {
   return function(dispatch) {
-    let configNew = config 
-    configNew.params.id = body.id
     dispatch({type: "DELETE_EVENT"});
-    axios.delete("http://localhost:6001/v1/promotions-calendar/events", configNew)
+    axios.delete(`${host}/events?id=${body.id}`, config)
       .then((response) => {
         dispatch({type: "DELETE_EVENTS_FULFILLED", payload: response.data})
-        axios.get("http://localhost:6001/v1/promotions-calendar/events", config)
-          .then((response) => {
-            dispatch({type: "FETCH_EVENTS_FULFILLED", payload: response.data})
-          })
-          .catch((err) => {
-            dispatch({type: "FETCH_EVENTS_REJECTED", payload: err})
-          })
       })
       .catch((err) => {
         dispatch({type: "DELETE_EVENTS_REJECTED", payload: err})
-        axios.get("http://localhost:6001/v1/promotions-calendar/events", config)
-          .then((response) => {
-            dispatch({type: "FETCH_EVENTS_FULFILLED", payload: response.data})
-          })
-          .catch((err) => {
-            dispatch({type: "FETCH_EVENTS_REJECTED", payload: err})
-          })
       })
   }
 }

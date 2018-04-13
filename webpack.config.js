@@ -5,6 +5,9 @@ var path = require('path');
 module.exports = {
   context: path.join(__dirname, "src"),
   devtool: debug ? "inline-sourcemap" : null,
+//  devServer: {
+//    port: 9998
+//  },
   entry: "./js/client.js",
   module: {
     loaders: [
@@ -22,9 +25,9 @@ module.exports = {
             loader:'style!css!'
         },
         { test: /\.json$/, loader: 'json' },
-        
+
     ],
-     
+
   },
   output: {
     path: __dirname + "/src/",

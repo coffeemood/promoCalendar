@@ -22,6 +22,9 @@ export default function reducer(state={
           ...state,
           fetching: false,
           fetched: true,
+          updated: false,
+          created: false,
+          deleted: false,
           events: action.payload,
         }
       }
@@ -49,7 +52,7 @@ export default function reducer(state={
         return {
           ...state,
           updating: false,
-          udpated: true,
+          updated: true,
           events: action.payload,
         }
       }

@@ -95,12 +95,12 @@ h1 {
     width: 50%;
 }
 
-.loyalty-normal, .crm-normal {
+.loyalty-normal, .crm-normal, .sports-normal, .racing-normal {
     width: 50%!important;
     overflow: hidden !important;
 }
 
-.loyalty-normal:hover, .crm-normal:hover {
+.loyalty-normal:hover, .crm-normal:hover, .sports-normal:hover, .racing-normal:hover {
     z-index: 10;
 }
 
@@ -193,6 +193,10 @@ h1 {
     z-index:2;
 }
 
+.rbc-time-content {
+    overflow-x: hidden;
+}
+
 #legend{ 
     margin: 0 auto; 
 }
@@ -202,6 +206,9 @@ h1 {
     font-size: 17px;
 }
 
+.react-datepicker-popper {
+    z-index: 50;
+}
 
 /* Datepicker bits */ 
 
@@ -216,6 +223,30 @@ input {
  border: 0 !important;
  background-color: transparent !important;
  border-bottom: 1px solid #8EBCDB !important;
+}
+
+#datePicker { 
+    text-align: left;
+    margin: 0 auto;
+    font-size: 22px;
+    color: #CD2334;
+}
+
+.react-datepicker-ignore-onclickoutside, .react-datepicker__input-container input {
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    border-bottom: 0;
+}
+
+.react-datepicker__input-container {
+    border-top: 1px solid #8EBCDB;
+}
+
+#datePicker DatePicker {
+    border-bottom: 1px solid #8EBCDB !important;
+    font-size: 18px;
+    text-align: center;
 }
 
 
